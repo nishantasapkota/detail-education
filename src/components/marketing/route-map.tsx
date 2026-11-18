@@ -74,7 +74,7 @@ export function RouteMap() {
         const on = active === d.id
         const label = LABEL[d.label](d.x, d.y)
         const tipW = d.tip.length * 1.05 + 3
-        const tipBelow = d.label !== "below"
+        const tipBelow = !["below"].includes(d.label)
         const tipX = Math.min(Math.max(d.x - tipW / 2, VIEW.x + 0.5), VIEW.x + VIEW.w - tipW - 0.5)
         const tipY = tipBelow ? d.y + 2.4 : label.y - 8
         return (
