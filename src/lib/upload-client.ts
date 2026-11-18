@@ -60,11 +60,7 @@ type CloudinaryUploadResponse = {
   error?: { message: string }
 }
 
-/**
- * Uploads an image wherever the server says: straight to Cloudinary with a
- * signature, or to our own /api/upload (stored in MongoDB) when Cloudinary
- * is not configured yet. Callers don't need to know which.
- */
+/** Uploads an image straight to Cloudinary with a short-lived server signature. */
 export async function uploadImage(
   file: File,
   options: { folder?: string; onProgress?: (percent: number) => void; signal?: AbortSignal } = {}
@@ -75,21 +71,6 @@ export async function uploadImage(
   const target = await getUploadTarget(options.folder)
   const form = new FormData()
   form.append("file", file)
-
-  if (target.provider === "mongodb") {
-    const tooBig = validateFile(file, target.maxBytes)
-    if (tooBig) throw new UploadError(tooBig)
-    return postWithProgress(
-      target.uploadUrl,
-      form,
-      (_status, body) => {
-        const json = body as ApiResponse<UploadedImage>
-        if (!json.success) throw new UploadError(json.error.message)
-        return json.data
-      },
-      options
-    )
-  }
 
   form.append("api_key", target.apiKey)
   form.append("timestamp", String(target.timestamp))

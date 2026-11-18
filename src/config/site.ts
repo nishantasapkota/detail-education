@@ -18,7 +18,5 @@ export const UPLOAD = {
   /** Cloudinary folder root; each user uploads into `${root}/${userId}`. */
   folderRoot: "detail",
   maxBytes: 5 * 1024 * 1024,
-  /** Uploads that pass through our server (MongoDB storage) must fit Vercel's 4.5 MB body limit. */
-  maxBytesViaServer: 4 * 1024 * 1024,
   acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"],
 } as const

@@ -22,7 +22,7 @@ const serverSchema = z.object({
   NEXTAUTH_URL: z.url().optional(),
   AUTH_GOOGLE_ID: z.string().optional(),
   AUTH_GOOGLE_SECRET: z.string().optional(),
-  // Optional: without these, uploaded images are stored in MongoDB instead.
+  // Required for media uploads; image files are stored in Cloudinary.
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
@@ -77,14 +77,3 @@ export const env = new Proxy({} as ServerEnv, {
 
 export const isGoogleAuthEnabled = () =>
   Boolean(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET)
-
-/**
- * Where uploaded images go. Cloudinary once its three server keys are set,
- * otherwise MongoDB (GridFS). Switching needs no code change.
- */
-export const isCloudinaryEnabled = () =>
-  Boolean(
-    process.env.CLOUDINARY_CLOUD_NAME &&
-      process.env.CLOUDINARY_API_KEY &&
-      process.env.CLOUDINARY_API_SECRET
-  )

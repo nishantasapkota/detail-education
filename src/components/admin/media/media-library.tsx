@@ -1,7 +1,6 @@
 "use client"
 
 import { Copy, Trash2, Upload } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useRef, useState, useTransition } from "react"
@@ -12,6 +11,7 @@ import { useMediaUpload } from "@/components/admin/media/use-media-upload"
 import { ListToolbar } from "@/components/admin/list-toolbar"
 import { EmptyState, formatDate, Panel } from "@/components/admin/page-parts"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { MediaImage } from "@/components/ui/media-image"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { UPLOAD } from "@/config/site"
@@ -81,7 +81,7 @@ export function MediaLibrary({ initial, query }: { initial: Data; query: string 
                 className="group block w-full text-left"
               >
                 <span className="relative block aspect-square overflow-hidden rounded-lg bg-muted">
-                  <Image src={item.url} alt={item.alt} fill sizes="200px" className="object-cover transition-transform group-hover:scale-105" />
+                  <MediaImage src={item.url} alt={item.alt} fill sizes="200px" className="object-cover transition-transform group-hover:scale-105" />
                 </span>
                 <span className="mt-1.5 block truncate text-xs">{item.name}</span>
                 <span className="block text-[11px] text-muted-foreground">
@@ -134,7 +134,7 @@ function MediaDetails({ item, onDone }: { item: MediaItem; onDone: () => void })
       </SheetHeader>
       <div className="space-y-4 px-4 pb-6">
         <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-muted">
-          <Image src={item.url} alt={item.alt} fill sizes="400px" className="object-contain" />
+          <MediaImage src={item.url} alt={item.alt} fill sizes="400px" className="object-contain" />
         </div>
         <dl className="grid grid-cols-2 gap-2 text-sm">
           <dt className="text-muted-foreground">Size</dt>

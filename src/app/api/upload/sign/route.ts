@@ -5,10 +5,8 @@ import { signUploadSchema } from "@/lib/validations/upload"
 import { getUploadTarget } from "@/services/upload.service"
 
 /**
- * POST /api/upload/sign — tells the browser where to upload. With Cloudinary
- * configured it returns a short-lived signature for a direct upload (file
- * bytes never pass through this function); otherwise it points at
- * /api/upload, which stores the file in MongoDB.
+ * POST /api/upload/sign — returns a short-lived signature for a direct
+ * Cloudinary upload. File bytes never pass through this function.
  */
 export const POST = withErrorHandling(async (request: Request) => {
   const user = await requireUser()

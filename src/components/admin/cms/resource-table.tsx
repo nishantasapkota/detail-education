@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useOptimistic, useTransition } from "react"
@@ -8,6 +7,7 @@ import { toast } from "sonner"
 
 import { toggleItemAction } from "@/app/admin/cms-actions"
 import { formatDate, StatusPill } from "@/components/admin/page-parts"
+import { MediaImage } from "@/components/ui/media-image"
 import { Switch } from "@/components/ui/switch"
 import { getResource } from "@/lib/cms/registry"
 import type { CmsDoc } from "@/lib/cms/serialize"
@@ -66,7 +66,7 @@ function Cell({ column, item, resourceKey }: { column: Column; item: CmsDoc; res
     case "image":
       return (
         <span className="relative block size-10 overflow-hidden rounded-md bg-muted">
-          {typeof value === "string" && value && <Image src={value} alt="" fill sizes="40px" className="object-cover" />}
+          {typeof value === "string" && value && <MediaImage src={value} alt="" fill sizes="40px" className="object-cover" />}
         </span>
       )
     case "badge":

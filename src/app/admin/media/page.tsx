@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { MediaLibrary } from "@/components/admin/media/media-library"
 import { PageHeader } from "@/components/admin/page-parts"
 import { requireUserOrRedirect } from "@/lib/auth/session"
-import { isCloudinaryEnabled } from "@/lib/env"
 import { listMedia } from "@/services/media.service"
 
 export const metadata: Metadata = { title: "Media library" }
@@ -19,7 +18,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/admin/medi
     <>
       <PageHeader
         title="Media library"
-        description={`Images used across the site. Stored in ${isCloudinaryEnabled() ? "Cloudinary" : "MongoDB"}.`}
+        description="Images are stored in Cloudinary; their URLs and media details are saved in MongoDB."
       />
       <MediaLibrary initial={data} query={q ?? ""} />
     </>

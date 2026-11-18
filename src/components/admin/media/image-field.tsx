@@ -1,11 +1,11 @@
 "use client"
 
 import { ImageIcon } from "lucide-react"
-import Image from "next/image"
 import { useState } from "react"
 
 import { MediaPicker } from "@/components/admin/media/media-picker"
 import { Button } from "@/components/ui/button"
+import { MediaImage } from "@/components/ui/media-image"
 
 /** Form control for an image: preview, choose from the library, remove. */
 export function ImageField({
@@ -29,7 +29,7 @@ export function ImageField({
         aria-label={value ? "Change image" : "Choose image"}
       >
         {value ? (
-          <Image src={value} alt="" fill sizes="128px" className="object-cover" />
+          <MediaImage src={value} alt="" fill sizes="128px" className="object-cover" />
         ) : (
           <ImageIcon className="size-6" />
         )}

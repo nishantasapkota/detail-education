@@ -1,7 +1,7 @@
-import Image from "next/image"
 import Link from "next/link"
 
 import { Reveal } from "@/components/motion/reveal"
+import { MediaImage } from "@/components/ui/media-image"
 import { formatArticleDate } from "@/lib/format"
 import type { Article, HomeContent } from "@/services/content.service"
 
@@ -48,7 +48,7 @@ export function ArticleCard({ article: a, tone = "dark" }: { article: Article; t
     >
       <div className="relative h-48 w-full overflow-hidden bg-brand-forest-dark">
         {a.coverImage && (
-          <Image
+          <MediaImage
             src={a.coverImage}
             alt=""
             fill

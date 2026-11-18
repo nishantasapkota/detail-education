@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
 import { Markdown } from "@/components/journal/markdown"
+import { MediaImage } from "@/components/ui/media-image"
 import { ArticleCard } from "@/components/marketing/journal"
 import { GoldButton } from "@/components/marketing/gold-button"
 import { formatLongDate } from "@/lib/format"
@@ -52,7 +52,7 @@ async function ArticleView({ params }: Pick<PageProps<"/journal/[slug]">, "param
       {article.coverImage && (
         <div className="mx-auto -mb-4 max-w-4xl px-6 pt-10">
           <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-gray-100">
-            <Image src={article.coverImage} alt="" fill priority sizes="(min-width: 896px) 896px, 100vw" className="object-cover" />
+            <MediaImage src={article.coverImage} alt="" fill priority sizes="(min-width: 896px) 896px, 100vw" className="object-cover" />
           </div>
         </div>
       )}

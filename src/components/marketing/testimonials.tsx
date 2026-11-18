@@ -1,9 +1,9 @@
 "use client"
 
-import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Reveal } from "@/components/motion/reveal"
+import { MediaImage } from "@/components/ui/media-image"
 import { cn } from "@/lib/utils"
 import type { Testimonial } from "@/services/content.service"
 
@@ -98,7 +98,7 @@ export function Testimonials({ kicker, title, items }: { kicker: string; title: 
               </div>
               <figcaption className="flex items-center gap-3 border-t border-gray-50 pt-4">
                 {t.photo ? (
-                  <Image src={t.photo} alt="" width={32} height={32} className="size-8 rounded-full object-cover" />
+                  <MediaImage src={t.photo} alt="" width={32} height={32} className="size-8 rounded-full object-cover" />
                 ) : (
                   <span className="flex size-8 items-center justify-center rounded-full bg-brand-forest font-serif text-xs font-bold text-white">
                     {t.name[0]}

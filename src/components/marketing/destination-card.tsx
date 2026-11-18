@@ -1,6 +1,6 @@
-import Image from "next/image"
 import Link from "next/link"
 
+import { MediaImage } from "@/components/ui/media-image"
 import { cn } from "@/lib/utils"
 import type { DestinationDTO } from "@/types/destination"
 
@@ -17,7 +17,7 @@ export function DestinationCard({ destination: d, index }: { destination: Destin
       )}
     >
       {d.image ? (
-        <Image
+        <MediaImage
           src={d.image}
           alt={d.imageAlt}
           fill

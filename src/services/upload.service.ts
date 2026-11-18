@@ -8,8 +8,6 @@ import { UPLOAD } from "@/config/site"
 import { AppError } from "@/lib/api/errors"
 import { getCloudinary, getCloudinaryKeys } from "@/lib/cloudinary/config"
 import { getImageBucket } from "@/lib/db/gridfs"
-import { isCloudinaryEnabled } from "@/lib/env"
-import { sniffImageType } from "@/lib/image-sniff"
 import {
   MONGO_IMAGE_PREFIX,
   mongoImageUrl,
@@ -18,11 +16,8 @@ import {
 } from "@/lib/validations/upload"
 
 /**
- * Image storage with two backends:
- * - Cloudinary (direct signed browser uploads) when its keys are set.
- * - MongoDB GridFS (file posted to /api/upload) otherwise.
- * Saved images keep working after you switch: each one records where it lives
- * in its `publicId` (`mongo:<id>` vs a Cloudinary path).
+ * New image uploads go directly to Cloudinary. MongoDB stores image URLs and
+ * media metadata; GridFS access remains only to serve/delete older uploads.
  */
 
 function userFolder(userId: string, sub?: string) {
@@ -34,10 +29,6 @@ const mongoIdOf = (publicId: string) => publicId.slice(MONGO_IMAGE_PREFIX.length
 
 /** Tells the browser where to send the file. */
 export function getUploadTarget(userId: string, sub?: string): UploadTarget {
-  if (!isCloudinaryEnabled()) {
-    return { provider: "mongodb", uploadUrl: "/api/upload", maxBytes: UPLOAD.maxBytesViaServer }
-  }
-
   // Only the params included here are covered by the signature, so the
   // client can't change the folder.
   const keys = getCloudinaryKeys()
@@ -46,34 +37,6 @@ export function getUploadTarget(userId: string, sub?: string): UploadTarget {
   const signature = getCloudinary().utils.api_sign_request({ timestamp, folder }, keys.apiSecret)
 
   return { provider: "cloudinary", signature, timestamp, folder, apiKey: keys.apiKey, cloudName: keys.cloudName }
-}
-
-/** Stores an uploaded file in GridFS after checking its real type and size. */
-export async function storeImageInMongo(userId: string, file: File): Promise<UploadedImage> {
-  if (file.size === 0) throw AppError.badRequest("The file is empty")
-  if (file.size > UPLOAD.maxBytesViaServer) {
-    throw AppError.badRequest(`File is too large. Max ${UPLOAD.maxBytesViaServer / 1024 / 1024} MB.`)
-  }
-
-  const bytes = new Uint8Array(await file.arrayBuffer())
-  const contentType = sniffImageType(bytes)
-  if (!contentType || !(UPLOAD.acceptedTypes as readonly string[]).includes(contentType)) {
-    throw AppError.badRequest("Unsupported file type. Use JPG, PNG, WebP, AVIF or GIF.")
-  }
-
-  const bucket = await getImageBucket()
-  const id = new Types.ObjectId()
-  await new Promise<void>((resolve, reject) => {
-    const stream = bucket.openUploadStreamWithId(id, file.name.slice(0, 200) || "image", {
-      metadata: { owner: userId, contentType },
-    })
-    stream.once("finish", () => resolve())
-    stream.once("error", reject)
-    stream.end(Buffer.from(bytes))
-  })
-
-  const hex = id.toHexString()
-  return { publicId: `${MONGO_IMAGE_PREFIX}${hex}`, url: mongoImageUrl(hex) }
 }
 
 /** Opens a stored image for streaming, or null when it does not exist. */

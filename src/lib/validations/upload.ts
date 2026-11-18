@@ -19,15 +19,10 @@ export type SignedUploadParams = {
   folder: string
 }
 
-/**
- * What POST /api/upload/sign returns. With no Cloudinary keys configured the
- * browser posts the file to /api/upload instead, which stores it in MongoDB.
- */
-export type UploadTarget =
-  | ({ provider: "cloudinary" } & SignedUploadParams)
-  | { provider: "mongodb"; uploadUrl: string; maxBytes: number }
+/** Uploads always go directly to Cloudinary. */
+export type UploadTarget = { provider: "cloudinary" } & SignedUploadParams
 
-/** Images stored in MongoDB are served from here; publicId is `mongo:<id>`. */
+/** Legacy GridFS images are served from here; new uploads go to Cloudinary. */
 export const MONGO_IMAGE_PREFIX = "mongo:"
 export const mongoImageUrl = (id: string) => `/api/images/${id}`
 const MONGO_IMAGE_URL = /^\/api\/images\/[a-f\d]{24}$/i

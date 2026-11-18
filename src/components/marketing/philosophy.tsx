@@ -1,5 +1,4 @@
-import Image from "next/image"
-
+import { MediaImage } from "@/components/ui/media-image"
 import { Reveal } from "@/components/motion/reveal"
 import type { HomeContent, TeamMember } from "@/services/content.service"
 
@@ -13,7 +12,7 @@ export function Philosophy({ content: c, member }: { content: HomeContent; membe
               <figure className="group relative flex min-h-[460px] flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-brand-forest p-8 text-white shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-emerald-950/30 sm:p-10">
                 {member.photo ? (
                   <div className="pointer-events-none absolute -bottom-4 right-2 h-72 w-56 opacity-90 transition-transform duration-500 select-none group-hover:scale-105 sm:right-6 sm:h-80 sm:w-64">
-                    <Image src={member.photo} alt="" fill sizes="256px" className="object-contain object-bottom drop-shadow-2xl" />
+                    <MediaImage src={member.photo} alt="" fill sizes="256px" className="object-contain object-bottom drop-shadow-2xl" />
                   </div>
                 ) : (
                   <span

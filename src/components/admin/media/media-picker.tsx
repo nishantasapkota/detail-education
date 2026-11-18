@@ -1,13 +1,13 @@
 "use client"
 
 import { Check, Search, Upload } from "lucide-react"
-import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { listMediaAction } from "@/app/admin/media/actions"
 import { useMediaUpload } from "@/components/admin/media/use-media-upload"
 import { Button } from "@/components/ui/button"
+import { MediaImage } from "@/components/ui/media-image"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { UPLOAD } from "@/config/site"
@@ -101,7 +101,7 @@ export function MediaPicker({ open, onOpenChange, onSelect }: Props) {
                         on ? "border-brand-gold" : "border-transparent hover:border-border"
                       )}
                     >
-                      <Image src={item.url} alt={item.alt} fill sizes="160px" className="object-cover" />
+                      <MediaImage src={item.url} alt={item.alt} fill sizes="160px" className="object-cover" />
                       {on && (
                         <span className="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-brand-gold text-brand-forest">
                           <Check className="size-3.5" />
