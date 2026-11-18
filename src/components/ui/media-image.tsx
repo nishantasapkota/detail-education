@@ -1,6 +1,6 @@
 import Image from "next/image"
 import type { ImageProps } from "next/image"
-import CldImage from "next-cloudinary"
+import { CldImage } from "next-cloudinary"
 
 /** Uses Cloudinary transformations for Cloudinary URLs and Next Image for other sources. */
 export function MediaImage(props: Omit<ImageProps, "quality" | "src"> & { src: string }) {
