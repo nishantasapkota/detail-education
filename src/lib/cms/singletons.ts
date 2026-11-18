@@ -240,7 +240,7 @@ const legal = (key: string, title: string, path: string) =>
         title: "Page",
         fields: [
           { type: "text", name: "title", label: "Title", wide: true },
-          { type: "markdown", name: "body", label: "Content", rows: 24, wide: true },
+          { type: "richtext", name: "body", label: "Content", rows: 24, wide: true },
         ],
       },
     ],

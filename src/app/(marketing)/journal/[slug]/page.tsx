@@ -3,7 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
-import { Markdown } from "@/components/journal/markdown"
+import { RichContent } from "@/components/journal/rich-content"
 import { MediaImage } from "@/components/ui/media-image"
 import { ArticleCard } from "@/components/marketing/journal"
 import { GoldButton } from "@/components/marketing/gold-button"
@@ -59,7 +59,7 @@ async function ArticleView({ params }: Pick<PageProps<"/journal/[slug]">, "param
 
       <div className="mx-auto max-w-3xl px-6 py-14">
         <p className="mb-8 font-serif text-xl leading-relaxed text-gray-700">{article.excerpt}</p>
-        {article.body ? <Markdown className="text-[17px] text-gray-800">{article.body}</Markdown> : null}
+        {article.body ? <RichContent className="text-[17px] text-gray-800">{article.body}</RichContent> : null}
 
         <aside className="mt-14 flex flex-col items-start justify-between gap-4 rounded-2xl bg-brand-cream p-6 sm:flex-row sm:items-center">
           <div>

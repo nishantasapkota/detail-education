@@ -264,7 +264,7 @@
   }
 }
 
-/* Markdown body text (journal articles, event details, admin preview). */
+/* Rich text body content; supports both Jodit HTML and legacy Markdown. */
 @utility prose-detail {
   line-height: 1.75;
   & > * + * { margin-top: 1em; }

@@ -23,7 +23,7 @@ export type Field =
   | (Base & { type: "text" | "email" | "url" | "tel"; placeholder?: string })
   | (Base & { type: "textarea"; rows?: number; placeholder?: string })
   /** Markdown body with a live preview. */
-  | (Base & { type: "markdown"; rows?: number })
+  | (Base & { type: "richtext"; rows?: number })
   | (Base & { type: "number"; min?: number; max?: number })
   | (Base & { type: "date" | "datetime" })
   /** URL-safe id, auto-filled from another field while creating. */

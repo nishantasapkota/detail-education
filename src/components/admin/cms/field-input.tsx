@@ -3,9 +3,8 @@
 import { ArrowDown, ArrowUp, Plus, X } from "lucide-react"
 import { useState } from "react"
 import { Controller, type Control, type FieldValues, type UseFormRegister } from "react-hook-form"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
 
+import { RichTextInput } from "@/components/admin/cms/rich-text-input"
 import { ImageField } from "@/components/admin/media/image-field"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -69,13 +68,13 @@ export function FieldInput({ field, control, register, error }: Props) {
         return <Input type="datetime-local" {...common} {...register(field.name)} />
       case "textarea":
         return <Textarea rows={field.rows ?? 3} placeholder={field.placeholder} {...common} {...register(field.name)} />
-      case "markdown":
+      case "richtext":
         return (
           <Controller
             control={control}
             name={field.name}
             render={({ field: f }) => (
-              <MarkdownInput id={id} rows={field.rows} value={f.value ?? ""} onChange={f.onChange} invalid={!!error} />
+              <RichTextInput id={id} rows={field.rows} value={f.value ?? ""} onChange={f.onChange} invalid={!!error} />
             )}
           />
         )
@@ -229,56 +228,6 @@ function ListInput({
         }}
         onBlur={add}
       />
-    </div>
-  )
-}
-
-function MarkdownInput({
-  id,
-  value,
-  onChange,
-  rows = 12,
-  invalid,
-}: {
-  id: string
-  value: string
-  onChange: (v: string) => void
-  rows?: number
-  invalid: boolean
-}) {
-  const [preview, setPreview] = useState(false)
-  return (
-    <div className="overflow-hidden rounded-lg border">
-      <div className="flex items-center gap-1 border-b bg-muted/50 px-2 py-1 text-xs">
-        {(["Write", "Preview"] as const).map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setPreview(tab === "Preview")}
-            className={cn(
-              "rounded px-2 py-1",
-              preview === (tab === "Preview") ? "bg-background font-medium shadow-xs" : "text-muted-foreground"
-            )}
-          >
-            {tab}
-          </button>
-        ))}
-        <span className="ml-auto text-muted-foreground">Markdown: **bold**, ## Heading, - list, [link](url)</span>
-      </div>
-      {preview ? (
-        <div className="prose-detail max-h-[32rem] min-h-40 overflow-y-auto px-4 py-3 text-sm">
-          {value ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown> : <p className="text-muted-foreground">Nothing yet.</p>}
-        </div>
-      ) : (
-        <Textarea
-          id={id}
-          rows={rows}
-          value={value}
-          aria-invalid={invalid || undefined}
-          onChange={(e) => onChange(e.target.value)}
-          className="rounded-none border-0 font-mono text-[13px] focus-visible:ring-0"
-        />
-      )}
     </div>
   )
 }

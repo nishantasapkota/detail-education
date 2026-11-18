@@ -42,7 +42,7 @@ export const events = defineResource({
         { type: "text", name: "location", label: "Venue", help: "Leave empty for online-only" },
         { type: "url", name: "meetingUrl", label: "Online link", placeholder: "https://" },
         { type: "textarea", name: "summary", label: "Summary", rows: 2, wide: true },
-        { type: "markdown", name: "body", label: "Details", rows: 10, wide: true },
+        { type: "richtext", name: "body", label: "Details", rows: 10, wide: true },
         { type: "image", name: "coverImage", label: "Cover image", wide: true },
       ],
     },

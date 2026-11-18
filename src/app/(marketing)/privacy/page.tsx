@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 
-import { Markdown } from "@/components/journal/markdown"
+import { RichContent } from "@/components/journal/rich-content"
 import { getLegalPage } from "@/services/content.service"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,7 +12,7 @@ export default async function LegalPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-20">
       <h1 className="mb-10 font-serif text-4xl tracking-tight text-brand-forest">{page.title}</h1>
-      <Markdown className="text-gray-800">{page.body}</Markdown>
+      <RichContent className="text-gray-800">{page.body}</RichContent>
     </div>
   )
 }

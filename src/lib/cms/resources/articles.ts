@@ -44,7 +44,7 @@ export const articles = defineResource({
         { type: "slug", name: "slug", label: "Slug", from: "title", required: true },
         { type: "select", name: "category", label: "Category", options: toOptions(ARTICLE_CATEGORIES), required: true },
         { type: "textarea", name: "excerpt", label: "Excerpt", rows: 3, wide: true, required: true, help: "Shown on the card and in search results." },
-        { type: "markdown", name: "body", label: "Body", rows: 18, wide: true },
+        { type: "richtext", name: "body", label: "Body", rows: 18, wide: true },
       ],
     },
     {

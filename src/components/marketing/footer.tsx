@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { Logo } from "@/components/marketing/logo"
 import { getBusiness } from "@/services/content.service"
 
 const EXPLORE = [
@@ -27,10 +28,7 @@ export async function MarketingFooter() {
       <div className="mx-auto max-w-7xl px-6 lg:px-12">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-12">
           <div className="space-y-3 md:col-span-5">
-            <p className="flex items-center gap-2">
-              <span className="font-bold tracking-wider text-brand-forest uppercase">Detail</span>
-              <span className="text-[10px] text-gray-400">Education Consultancy</span>
-            </p>
+            <Logo />
             <p className="max-w-sm leading-relaxed">{b.tagline}</p>
             {socials.length > 0 && (
               <ul className="flex flex-wrap gap-x-4 gap-y-1 pt-2">
