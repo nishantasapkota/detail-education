@@ -1,4 +1,27 @@
-export const DOCUMENTATION_TIMELINES = [
+import type { DocumentationCountryId } from "@/config/documentation"
+
+export type DocumentationStage = {
+  timing: string
+  title: string
+  description: string
+  documents: string[]
+}
+
+export type DocumentationTimelineData = {
+  id: DocumentationCountryId
+  name: string
+  code: string
+  route: string
+  targetIntakes: string
+  guideTimeline: string
+  authority: string
+  officialLabel: string
+  officialUrl: string
+  notes: string[]
+  steps: DocumentationStage[]
+}
+
+export const DOCUMENTATION_TIMELINES: DocumentationTimelineData[] = [
   {
     id: "japan",
     name: "Japan",
@@ -530,4 +553,4 @@ export const DOCUMENTATION_TIMELINES = [
       },
     ],
   },
-] as const
+]

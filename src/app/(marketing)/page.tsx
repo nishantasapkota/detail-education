@@ -17,6 +17,7 @@ import {
   getArticles,
   getBusiness,
   getCourses,
+  getDocumentationTimelines,
   getFeaturedTeamMember,
   getHomeContent,
   getPartners,
@@ -32,7 +33,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Every piece of copy and every list here is edited in the admin. All reads are cached. */
 export default async function HomePage() {
-  const [content, business, services, courses, testimonials, member, articles, partners, visas] = await Promise.all([
+  const [
+    content,
+    business,
+    services,
+    courses,
+    testimonials,
+    member,
+    articles,
+    partners,
+    visas,
+    documentationTimelines,
+  ] = await Promise.all([
     getHomeContent(),
     getBusiness(),
     getServices(),
@@ -42,6 +54,7 @@ export default async function HomePage() {
     getArticles({ limit: 3, featuredFirst: true }),
     getPartners(),
     getVisaSuccesses(),
+    getDocumentationTimelines(),
   ])
 
   return (
@@ -50,19 +63,34 @@ export default async function HomePage() {
       <Hero content={content} />
       <StatsBar stats={content.stats} whatsappUrl={business.whatsappUrl} />
       {partners.length > 0 && (
-        <PartnerMarquee kicker={content.partnersKicker} title={content.partnersTitle} partners={partners} />
+        <PartnerMarquee
+          kicker={content.partnersKicker}
+          title={content.partnersTitle}
+          partners={partners}
+        />
       )}
       <Destinations content={content} />
-      <DocumentationTimeline />
+      {documentationTimelines.length > 0 && (
+        <DocumentationTimeline countries={documentationTimelines} />
+      )}
       <Process content={content} steps={services} />
       <Philosophy content={content} member={member} />
       <TestPrep content={content} courses={courses} />
       {visas.length > 0 && (
-        <VisaGallery kicker={content.visasKicker} title={content.visasTitle} intro={content.visasIntro} items={visas} />
+        <VisaGallery
+          kicker={content.visasKicker}
+          title={content.visasTitle}
+          intro={content.visasIntro}
+          items={visas}
+        />
       )}
       <Journal content={content} articles={articles} />
       {testimonials.length > 0 && (
-        <Testimonials kicker={content.storiesKicker} title={content.storiesTitle} items={testimonials} />
+        <Testimonials
+          kicker={content.storiesKicker}
+          title={content.storiesTitle}
+          items={testimonials}
+        />
       )}
       <Consultation content={content} business={business} />
     </>

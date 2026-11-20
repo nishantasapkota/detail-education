@@ -1,6 +1,7 @@
 import { articles } from "@/lib/cms/resources/articles"
 import { courses } from "@/lib/cms/resources/courses"
 import { destinations } from "@/lib/cms/resources/destinations"
+import { documentation } from "@/lib/cms/resources/documentation"
 import { events } from "@/lib/cms/resources/events"
 import { partners } from "@/lib/cms/resources/partners"
 import { services } from "@/lib/cms/resources/services"
@@ -12,6 +13,7 @@ import type { ResourceDef } from "@/lib/cms/types"
 /** Every CMS content type, by URL key (/admin/<key>). */
 export const RESOURCES = {
   destinations,
+  documentation,
   articles,
   courses,
   services,

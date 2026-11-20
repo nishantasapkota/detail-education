@@ -3,20 +3,15 @@
 import { useId, useState } from "react"
 import { ArrowUpRight, ChevronDown } from "lucide-react"
 
-import { DOCUMENTATION_TIMELINES } from "@/data/documentation-timelines"
+import type {
+  DocumentationCountryId,
+  DocumentationTimelineData,
+} from "@/data/documentation-timelines"
 
-type CountryId = (typeof DOCUMENTATION_TIMELINES)[number]["id"]
-const COUNTRY_ORDER: CountryId[] = [
-  "canada",
-  "japan",
-  "uk",
-  "usa",
-  "finland",
-  "australia",
-  "germany",
-]
-
-const COUNTRY_MAPS: Record<CountryId, { viewBox: string; x: number; y: number }> = {
+const COUNTRY_MAPS: Record<
+  DocumentationCountryId,
+  { viewBox: string; x: number; y: number }
+> = {
   canada: { viewBox: "6 6 31 22", x: 21.5, y: 17.32 },
   japan: { viewBox: "110 14 22 22", x: 120.5, y: 24.25 },
   uk: { viewBox: "61 9 14 13", x: 67.5, y: 15.59 },
@@ -26,7 +21,7 @@ const COUNTRY_MAPS: Record<CountryId, { viewBox: string; x: number; y: number }>
   germany: { viewBox: "66 9 14 13", x: 72.5, y: 15.59 },
 }
 
-function DestinationMap({ id, name }: { id: CountryId; name: string }) {
+function DestinationMap({ id, name }: { id: DocumentationCountryId; name: string }) {
   const map = COUNTRY_MAPS[id]
   const gradientId = `destination-map-glow-${useId().replace(/:/g, "")}`
 
@@ -73,11 +68,16 @@ function DestinationMap({ id, name }: { id: CountryId; name: string }) {
   )
 }
 
-export function DocumentationTimeline() {
-  const [selectedCountry, setSelectedCountry] = useState<CountryId>("japan")
-  const country =
-    DOCUMENTATION_TIMELINES.find((item) => item.id === selectedCountry) ??
-    DOCUMENTATION_TIMELINES[0]
+export function DocumentationTimeline({
+  countries,
+}: {
+  countries: DocumentationTimelineData[]
+}) {
+  const [selectedCountry, setSelectedCountry] = useState<DocumentationCountryId>(
+    countries.find((item) => item.id === "japan")?.id ?? countries[0]?.id ?? "japan"
+  )
+  const country = countries.find((item) => item.id === selectedCountry) ?? countries[0]
+  if (!country) return null
 
   return (
     <section
@@ -116,18 +116,15 @@ export function DocumentationTimeline() {
                 id="documentation-country"
                 value={selectedCountry}
                 onChange={(event) =>
-                  setSelectedCountry(event.currentTarget.value as CountryId)
+                  setSelectedCountry(event.currentTarget.value as DocumentationCountryId)
                 }
                 className="h-12 w-full appearance-none rounded-xl border border-brand-border bg-white px-4 pr-11 text-sm font-semibold text-brand-forest shadow-sm transition outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20"
               >
-                {COUNTRY_ORDER.map((id) => {
-                  const item = DOCUMENTATION_TIMELINES.find((entry) => entry.id === id)
-                  return item ? (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ) : null
-                })}
+                {countries.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
               </select>
               <ChevronDown
                 aria-hidden

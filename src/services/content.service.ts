@@ -2,6 +2,7 @@ import "server-only"
 
 import { cacheLife, cacheTag } from "next/cache"
 
+import { DOCUMENTATION_COUNTRY_ORDER } from "@/config/documentation"
 import {
   ABOUT_DEFAULTS,
   BUSINESS_DEFAULTS,
@@ -11,6 +12,11 @@ import {
   SEED_TEAM,
   SEED_TESTIMONIALS,
 } from "@/data/site-content"
+import {
+  DOCUMENTATION_TIMELINES,
+  type DocumentationCountryId,
+  type DocumentationTimelineData,
+} from "@/data/documentation-timelines"
 import { serializeDoc, type CmsDoc } from "@/lib/cms/serialize"
 import { about, business, home, privacy, terms } from "@/lib/cms/singletons"
 import { connectDB } from "@/lib/db/mongoose"
@@ -27,12 +33,55 @@ export type HomeContent = typeof HOME_DEFAULTS
 export type AboutContent = typeof ABOUT_DEFAULTS
 export type BusinessContent = typeof BUSINESS_DEFAULTS & { whatsappUrl: string }
 
-export type Service = { slug: string; title: string; stage: string; summary: string; linkLabel: string }
-export type Course = { slug: string; name: string; tag: string; summary: string; points: string[]; duration: string; fee: string | null }
-export type Testimonial = { id: string; name: string; role: string; quote: string; photo: string | null; verified: boolean }
-export type Partner = { id: string; name: string; country: string; logo: string | null; website: string | null }
-export type VisaSuccess = { id: string; name: string; country: string; university: string | null; intake: string | null; photo: string }
-export type TeamMember = { name: string; title: string; bio: string; quote: string | null; yearsExperience: number; photo: string | null; featured: boolean }
+export type Service = {
+  slug: string
+  title: string
+  stage: string
+  summary: string
+  linkLabel: string
+}
+export type Course = {
+  slug: string
+  name: string
+  tag: string
+  summary: string
+  points: string[]
+  duration: string
+  fee: string | null
+}
+export type Testimonial = {
+  id: string
+  name: string
+  role: string
+  quote: string
+  photo: string | null
+  verified: boolean
+}
+export type Partner = {
+  id: string
+  name: string
+  country: string
+  logo: string | null
+  website: string | null
+}
+export type VisaSuccess = {
+  id: string
+  name: string
+  country: string
+  university: string | null
+  intake: string | null
+  photo: string
+}
+export type DocumentationTimeline = DocumentationTimelineData
+export type TeamMember = {
+  name: string
+  title: string
+  bio: string
+  quote: string | null
+  yearsExperience: number
+  photo: string | null
+  featured: boolean
+}
 export type Article = {
   slug: string
   title: string
@@ -48,7 +97,12 @@ export type Article = {
   seoDescription: string | null
 }
 
-async function find(collection: string, filter: Record<string, unknown>, sort: Record<string, 1 | -1>, limit = 0) {
+async function find(
+  collection: string,
+  filter: Record<string, unknown>,
+  sort: Record<string, 1 | -1>,
+  limit = 0
+) {
   const conn = await connectDB()
   const cursor = conn.connection.collection(collection).find(filter).sort(sort)
   if (limit) cursor.limit(limit)
@@ -56,7 +110,11 @@ async function find(collection: string, filter: Record<string, unknown>, sort: R
 }
 
 /** Runs a query; on an empty result or error, returns the fallback instead. */
-async function withFallback<T>(label: string, query: () => Promise<T[]>, fallback: () => T[]): Promise<T[]> {
+async function withFallback<T>(
+  label: string,
+  query: () => Promise<T[]>,
+  fallback: () => T[]
+): Promise<T[]> {
   if (!process.env.MONGODB_URI) return fallback()
   try {
     const rows = await query()
@@ -67,7 +125,8 @@ async function withFallback<T>(label: string, query: () => Promise<T[]>, fallbac
   }
 }
 
-const pick = <T,>(doc: CmsDoc, keys: (keyof T)[]) => Object.fromEntries(keys.map((k) => [k, doc[k as string] ?? null])) as T
+const pick = <T>(doc: CmsDoc, keys: (keyof T)[]) =>
+  Object.fromEntries(keys.map((k) => [k, doc[k as string] ?? null])) as T
 
 export async function getHomeContent(): Promise<HomeContent> {
   "use cache"
@@ -91,7 +150,9 @@ export async function getBusiness(): Promise<BusinessContent> {
   return { ...values, whatsappUrl: `https://wa.me/${values.whatsappNumber}` }
 }
 
-export async function getLegalPage(key: "privacy" | "terms"): Promise<{ title: string; body: string }> {
+export async function getLegalPage(
+  key: "privacy" | "terms"
+): Promise<{ title: string; body: string }> {
   "use cache"
   cacheLife("days")
   cacheTag(`page-${key}`)
@@ -105,19 +166,85 @@ export async function getServices(): Promise<Service[]> {
   const keys: (keyof Service)[] = ["slug", "title", "stage", "summary", "linkLabel"]
   return withFallback(
     "services",
-    async () => (await find("services", { published: true }, { order: 1 })).map((d) => pick<Service>(d, keys)),
+    async () =>
+      (await find("services", { published: true }, { order: 1 })).map((d) =>
+        pick<Service>(d, keys)
+      ),
     () => SEED_SERVICES
   )
+}
+
+/** Published, CMS-managed student visa roadmaps, with bundled defaults for a fresh database. */
+export async function getDocumentationTimelines(): Promise<DocumentationTimeline[]> {
+  "use cache"
+  cacheLife("days")
+  cacheTag("documentation-timelines")
+
+  const fallback = DOCUMENTATION_COUNTRY_ORDER.map((id) =>
+    DOCUMENTATION_TIMELINES.find((item) => item.id === id)
+  ).filter((item): item is DocumentationTimeline => item !== undefined)
+  if (!process.env.MONGODB_URI) return fallback
+
+  try {
+    const rows = await find("documentation_timelines", {}, { order: 1 })
+    if (!rows.length) return fallback
+    return rows
+      .filter((row) => Boolean(row.published))
+      .map((row) => {
+        const stages = Array.isArray(row.stages) ? row.stages : []
+        return {
+          id: String(row.countryId) as DocumentationCountryId,
+          name: String(row.country ?? ""),
+          code: String(row.code ?? ""),
+          route: String(row.route ?? ""),
+          targetIntakes: String(row.targetIntakes ?? ""),
+          guideTimeline: String(row.guideTimeline ?? ""),
+          authority: String(row.authority ?? ""),
+          officialLabel: String(row.officialLabel ?? ""),
+          officialUrl: String(row.officialUrl ?? ""),
+          notes: Array.isArray(row.notes) ? row.notes.map(String) : [],
+          steps: stages.map((stage) => {
+            const storedDocuments = stage.documents
+            const documents = Array.isArray(storedDocuments)
+              ? storedDocuments.map(String)
+              : String(storedDocuments ?? "")
+                  .split(/\r?\n/)
+                  .map((document) => document.trim())
+                  .filter(Boolean)
+            return {
+              timing: String(stage.timing ?? ""),
+              title: String(stage.title ?? ""),
+              description: String(stage.description ?? ""),
+              documents,
+            }
+          }),
+        }
+      })
+  } catch (error) {
+    console.error("[content] documentation timelines read failed; using defaults", error)
+    return fallback
+  }
 }
 
 export async function getCourses(): Promise<Course[]> {
   "use cache"
   cacheLife("days")
   cacheTag("courses")
-  const keys: (keyof Course)[] = ["slug", "name", "tag", "summary", "points", "duration", "fee"]
+  const keys: (keyof Course)[] = [
+    "slug",
+    "name",
+    "tag",
+    "summary",
+    "points",
+    "duration",
+    "fee",
+  ]
   return withFallback(
     "courses",
-    async () => (await find("courses", { published: true }, { order: 1 })).map((d) => pick<Course>(d, keys)),
+    async () =>
+      (await find("courses", { published: true }, { order: 1 })).map((d) =>
+        pick<Course>(d, keys)
+      ),
     () => SEED_COURSES
   )
 }
@@ -129,14 +256,16 @@ export async function getTestimonials(): Promise<Testimonial[]> {
   return withFallback(
     "testimonials",
     async () =>
-      (await find("testimonials", { published: true }, { order: 1, createdAt: -1 })).map((d) => ({
-        id: d.id,
-        name: String(d.name),
-        role: String(d.role ?? ""),
-        quote: String(d.quote),
-        photo: (d.photo as string | null) ?? null,
-        verified: !!d.verified,
-      })),
+      (await find("testimonials", { published: true }, { order: 1, createdAt: -1 })).map(
+        (d) => ({
+          id: d.id,
+          name: String(d.name),
+          role: String(d.role ?? ""),
+          quote: String(d.quote),
+          photo: (d.photo as string | null) ?? null,
+          verified: !!d.verified,
+        })
+      ),
     () => SEED_TESTIMONIALS.map((t, i) => ({ ...t, id: String(i) }))
   )
 }
@@ -168,16 +297,20 @@ export async function getVisaSuccesses(): Promise<VisaSuccess[]> {
   return withFallback(
     "visas",
     async () =>
-      (await find("visa_successes", { published: true, photo: { $nin: [null, ""] } }, { order: 1, createdAt: -1 })).map(
-        (d) => ({
-          id: d.id,
-          name: String(d.name),
-          country: String(d.country ?? ""),
-          university: (d.university as string | null) ?? null,
-          intake: (d.intake as string | null) ?? null,
-          photo: String(d.photo),
-        })
-      ),
+      (
+        await find(
+          "visa_successes",
+          { published: true, photo: { $nin: [null, ""] } },
+          { order: 1, createdAt: -1 }
+        )
+      ).map((d) => ({
+        id: d.id,
+        name: String(d.name),
+        country: String(d.country ?? ""),
+        university: (d.university as string | null) ?? null,
+        intake: (d.intake as string | null) ?? null,
+        photo: String(d.photo),
+      })),
     () => []
   )
 }
@@ -187,10 +320,21 @@ export async function getFeaturedTeamMember(): Promise<TeamMember | null> {
   "use cache"
   cacheLife("days")
   cacheTag("team")
-  const keys: (keyof TeamMember)[] = ["name", "title", "bio", "quote", "yearsExperience", "photo", "featured"]
+  const keys: (keyof TeamMember)[] = [
+    "name",
+    "title",
+    "bio",
+    "quote",
+    "yearsExperience",
+    "photo",
+    "featured",
+  ]
   const rows = await withFallback(
     "team",
-    async () => (await find("team", { published: true }, { featured: -1, order: 1 }, 1)).map((d) => pick<TeamMember>(d, keys)),
+    async () =>
+      (await find("team", { published: true }, { featured: -1, order: 1 }, 1)).map((d) =>
+        pick<TeamMember>(d, keys)
+      ),
     () => SEED_TEAM
   )
   return rows[0] ?? null
@@ -201,16 +345,38 @@ export async function getTeam(): Promise<TeamMember[]> {
   "use cache"
   cacheLife("days")
   cacheTag("team")
-  const keys: (keyof TeamMember)[] = ["name", "title", "bio", "quote", "yearsExperience", "photo", "featured"]
+  const keys: (keyof TeamMember)[] = [
+    "name",
+    "title",
+    "bio",
+    "quote",
+    "yearsExperience",
+    "photo",
+    "featured",
+  ]
   return withFallback(
     "team",
-    async () => (await find("team", { published: true }, { featured: -1, order: 1 })).map((d) => pick<TeamMember>(d, keys)),
+    async () =>
+      (await find("team", { published: true }, { featured: -1, order: 1 })).map((d) =>
+        pick<TeamMember>(d, keys)
+      ),
     () => SEED_TEAM
   )
 }
 
 const ARTICLE_KEYS: (keyof Article)[] = [
-  "slug", "title", "category", "excerpt", "body", "coverImage", "author", "readMinutes", "publishedAt", "featured", "seoTitle", "seoDescription",
+  "slug",
+  "title",
+  "category",
+  "excerpt",
+  "body",
+  "coverImage",
+  "author",
+  "readMinutes",
+  "publishedAt",
+  "featured",
+  "seoTitle",
+  "seoDescription",
 ]
 
 const livingArticles = () => ({ status: "published", publishedAt: { $lte: new Date() } })
@@ -219,13 +385,17 @@ const livingArticles = () => ({ status: "published", publishedAt: { $lte: new Da
  * Published articles, newest first. No fallback: seed articles are drafts,
  * so an empty journal simply hides its home section.
  */
-export async function getArticles(options: { limit?: number; featuredFirst?: boolean } = {}): Promise<Article[]> {
+export async function getArticles(
+  options: { limit?: number; featuredFirst?: boolean } = {}
+): Promise<Article[]> {
   "use cache"
   cacheLife("hours")
   cacheTag("articles")
   if (!process.env.MONGODB_URI) return []
   try {
-    const sort: Record<string, 1 | -1> = options.featuredFirst ? { featured: -1, publishedAt: -1 } : { publishedAt: -1 }
+    const sort: Record<string, 1 | -1> = options.featuredFirst
+      ? { featured: -1, publishedAt: -1 }
+      : { publishedAt: -1 }
     const docs = await find("articles", livingArticles(), sort, options.limit ?? 0)
     return docs.map((d) => pick<Article>(d, ARTICLE_KEYS))
   } catch (error) {
@@ -239,6 +409,11 @@ export async function getArticle(slug: string): Promise<Article | null> {
   cacheLife("hours")
   cacheTag("articles")
   if (!process.env.MONGODB_URI || !/^[a-z0-9-]{1,80}$/.test(slug)) return null
-  const [doc] = await find("articles", { ...livingArticles(), slug }, { publishedAt: -1 }, 1)
+  const [doc] = await find(
+    "articles",
+    { ...livingArticles(), slug },
+    { publishedAt: -1 },
+    1
+  )
   return doc ? pick<Article>(doc, ARTICLE_KEYS) : null
 }
