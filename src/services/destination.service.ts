@@ -28,6 +28,7 @@ function toDTO(d: Record<string, unknown>): DestinationDTO {
     meta: parsed.meta ?? null,
     body: parsed.body,
     chips: parsed.chips,
+    intakes: parsed.intakes,
     cta: parsed.cta,
     image: parsed.image ?? null,
     imageAlt: parsed.imageAlt,

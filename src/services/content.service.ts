@@ -2,7 +2,10 @@ import "server-only"
 
 import { cacheLife, cacheTag } from "next/cache"
 
-import { DOCUMENTATION_COUNTRY_ORDER } from "@/config/documentation"
+import {
+  DOCUMENTATION_COUNTRY_ORDER,
+  type DocumentationCountryId,
+} from "@/config/documentation"
 import {
   ABOUT_DEFAULTS,
   BUSINESS_DEFAULTS,
@@ -14,7 +17,6 @@ import {
 } from "@/data/site-content"
 import {
   DOCUMENTATION_TIMELINES,
-  type DocumentationCountryId,
   type DocumentationTimelineData,
 } from "@/data/documentation-timelines"
 import { serializeDoc, type CmsDoc } from "@/lib/cms/serialize"

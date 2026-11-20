@@ -30,6 +30,7 @@ export const destinationSchema = z.object({
   meta: z.string().max(40).nullish(),
   body: z.string().max(240),
   chips: z.array(z.string().max(30)).max(4),
+  intakes: z.array(z.string().trim().min(1).max(30)).max(8).default([]),
   cta: z.string().max(40),
   /** Local path, /api/images/<id> or a Cloudinary URL. Null shows a styled placeholder. */
   image: z.string().max(1024).nullish(),

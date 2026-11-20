@@ -11,7 +11,7 @@ export const destinations = defineResource({
   collection: "destinations",
   singular: "Destination",
   plural: "Destinations",
-  description: "Study countries shown in the “Find your place in the world” tabs.",
+  description: "Study countries, intake options, and cards shown in the curated destinations section.",
   permission: "content.manage",
   schema: z.object({
     name: z.string().trim().min(2).max(60),
@@ -50,6 +50,14 @@ export const destinations = defineResource({
         { type: "text", name: "meta", label: "Meta (optional)", help: "e.g. 4,000+ Colleges" },
         { type: "textarea", name: "body", label: "Description", rows: 3, wide: true },
         { type: "list", name: "chips", label: "Chips", max: 4, wide: true },
+        {
+          type: "list",
+          name: "intakes",
+          label: "Available intakes",
+          max: 8,
+          wide: true,
+          help: "Add one intake month or term per item, such as September or Winter (October).",
+        },
         { type: "text", name: "cta", label: "Button text" },
         { type: "number", name: "order", label: "Order", min: 0 },
       ],
@@ -76,7 +84,16 @@ export const destinations = defineResource({
   uniqueField: "slug",
   publicPath: () => "/#destinations",
   cacheTags: ["destinations"],
-  defaults: { categories: [], featured: false, chips: [], cta: "Explore Programs", order: 0, published: true, image: null },
+  defaults: {
+    categories: [],
+    featured: false,
+    chips: [],
+    intakes: [],
+    cta: "Explore Programs",
+    order: 0,
+    published: true,
+    image: null,
+  },
 })
 
 export const DESTINATION_COUNTRY_OPTIONS = toOptions(["USA", "United Kingdom", "Australia", "Canada", "Germany", "Japan"])

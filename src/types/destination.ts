@@ -12,6 +12,7 @@ export type DestinationDTO = {
   meta: string | null
   body: string
   chips: string[]
+  intakes: string[]
   cta: string
   image: string | null
   imageAlt: string

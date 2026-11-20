@@ -74,6 +74,13 @@ export function DestinationCard({ destination: d, index }: { destination: Destin
           {d.name}
         </h3>
         <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-stone-300 sm:text-sm">{d.body}</p>
+        {d.intakes.length > 0 && (
+          <p className="mb-4 text-[11px] leading-relaxed text-stone-300">
+            <span className="font-semibold text-amber-200">Intakes</span>
+            <span aria-hidden> · </span>
+            {d.intakes.join(" · ")}
+          </p>
+        )}
         <div className="mb-5 flex flex-wrap gap-2">
           {d.chips.map((c) => (
             <span key={c} className="rounded-md border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-medium backdrop-blur-sm">

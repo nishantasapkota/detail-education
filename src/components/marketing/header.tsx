@@ -17,7 +17,7 @@ export function MarketingHeader() {
           ))}
         </nav>
         <GoldButton href="/#consultation" size="sm">
-          Book free counselling
+          Speak with us
         </GoldButton>
       </div>
     </header>

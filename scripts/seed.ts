@@ -90,6 +90,21 @@ await seed(
     ...d,
   }))
 )
+let intakeListsAdded = 0
+for (const destination of DEFAULT_DESTINATIONS) {
+  const result = await db
+    .collection("destinations")
+    .updateOne(
+      { slug: destination.slug, intakes: { $exists: false } },
+      { $set: { intakes: destination.intakes } }
+    )
+  intakeListsAdded += result.modifiedCount
+}
+if (intakeListsAdded > 0) {
+  console.log(
+    `destinations   ${intakeListsAdded} intake lists added; existing values preserved`
+  )
+}
 await seed(
   "documentation_timelines",
   "countryId",

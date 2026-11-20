@@ -3,10 +3,8 @@
 import { useId, useState } from "react"
 import { ArrowUpRight, ChevronDown } from "lucide-react"
 
-import type {
-  DocumentationCountryId,
-  DocumentationTimelineData,
-} from "@/data/documentation-timelines"
+import type { DocumentationCountryId } from "@/config/documentation"
+import type { DocumentationTimelineData } from "@/data/documentation-timelines"
 
 const COUNTRY_MAPS: Record<
   DocumentationCountryId,

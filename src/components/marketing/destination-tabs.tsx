@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useId, useRef, useState } from "react"
+import { ChevronDown, SlidersHorizontal } from "lucide-react"
 
 import { DestinationCard } from "@/components/marketing/destination-card"
 import { gsap, REDUCED_MOTION, useGSAP } from "@/components/motion/gsap"
@@ -8,12 +9,25 @@ import { cn } from "@/lib/utils"
 import type { DestinationDTO, DestinationTab } from "@/types/destination"
 
 type TabId = DestinationTab["id"]
+const INTAKE_ORDER = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+]
+const INTAKE_ORDER_INDEX = new Map(INTAKE_ORDER.map((month, index) => [month, index]))
+const normalizeIntake = (intake: string) =>
+  INTAKE_ORDER.find((month) => intake.toLowerCase().includes(month.toLowerCase())) ?? intake
 
-/**
- * Accessible tabs (WAI-ARIA tabs pattern): each tab shows only its
- * destinations, in a one-row carousel (3 cards visible on desktop, 2 on
- * tablet, 1 on phones). Arrow keys / Home / End move between tabs.
- */
+/** A compact category and intake filter above the destination carousel. */
 export function DestinationTabs({
   tabs,
   destinations,
@@ -23,15 +37,42 @@ export function DestinationTabs({
   destinations: DestinationDTO[]
   heading: { title: string; accent: string; intro: string }
 }) {
-  const visibleTabs = tabs.filter((t) => t.count > 0)
   const [active, setActive] = useState<TabId>("all")
+  const [selectedIntake, setSelectedIntake] = useState("all")
+  const [filterOpen, setFilterOpen] = useState(false)
   const baseId = useId()
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
   const rowRef = useRef<HTMLDivElement>(null)
+  const filterRef = useRef<HTMLDivElement>(null)
 
-  const items = active === "all" ? destinations : destinations.filter((d) => d.categories.includes(active))
-  const tabId = (id: TabId) => `${baseId}-tab-${id}`
+  const intakeOptions = Array.from(
+    new Set(destinations.flatMap((destination) => destination.intakes.map(normalizeIntake)))
+  ).sort((a, b) => {
+    const aIndex = INTAKE_ORDER_INDEX.get(a) ?? INTAKE_ORDER.length
+    const bIndex = INTAKE_ORDER_INDEX.get(b) ?? INTAKE_ORDER.length
+    return aIndex - bIndex || a.localeCompare(b)
+  })
+  const intakeMatches =
+    selectedIntake === "all"
+      ? destinations
+      : destinations.filter((destination) =>
+          destination.intakes.some((intake) => normalizeIntake(intake) === selectedIntake)
+        )
+  const visibleTabs = tabs
+    .map((tab) => ({
+      ...tab,
+      count:
+        tab.id === "all"
+          ? intakeMatches.length
+          : intakeMatches.filter((destination) => destination.categories.includes(tab.id)).length,
+    }))
+    .filter((tab) => tab.count > 0)
+  const items =
+    active === "all"
+      ? intakeMatches
+      : intakeMatches.filter((destination) => destination.categories.includes(active))
   const panelId = `${baseId}-panel`
+  const filterPanelId = `${baseId}-filters`
+  const filterCount = Number(active !== "all") + Number(selectedIntake !== "all")
 
   // Animate the new set of cards in whenever the tab changes.
   useGSAP(
@@ -44,28 +85,8 @@ export function DestinationTabs({
         { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.07, clearProps: "transform" }
       )
     },
-    { scope: rowRef, dependencies: [active], revertOnUpdate: false }
+    { scope: rowRef, dependencies: [active, selectedIntake], revertOnUpdate: false }
   )
-
-  function select(index: number) {
-    const tab = visibleTabs[index]
-    if (!tab) return
-    setActive(tab.id)
-    tabRefs.current[index]?.focus()
-  }
-
-  function onKeyDown(e: React.KeyboardEvent, index: number) {
-    const last = visibleTabs.length - 1
-    const next = {
-      ArrowRight: index === last ? 0 : index + 1,
-      ArrowLeft: index === 0 ? last : index - 1,
-      Home: 0,
-      End: last,
-    }[e.key]
-    if (next === undefined) return
-    e.preventDefault()
-    select(next)
-  }
 
   // Carousel edges, so the arrows can disable themselves (and hide when everything fits).
   const [edges, setEdges] = useState({ start: true, end: true })
@@ -87,7 +108,23 @@ export function DestinationTabs({
       row.removeEventListener("scroll", syncEdges)
       observer.disconnect()
     }
-  }, [syncEdges, active])
+  }, [syncEdges, active, selectedIntake])
+
+  useEffect(() => {
+    if (!filterOpen) return
+    function closeOnOutsideClick(event: PointerEvent) {
+      if (!filterRef.current?.contains(event.target as Node)) setFilterOpen(false)
+    }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setFilterOpen(false)
+    }
+    document.addEventListener("pointerdown", closeOnOutsideClick)
+    document.addEventListener("keydown", closeOnEscape)
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick)
+      document.removeEventListener("keydown", closeOnEscape)
+    }
+  }, [filterOpen])
 
   /**
    * Moves exactly one card: scrolls to the next (or previous) card's start.
@@ -120,44 +157,94 @@ export function DestinationTabs({
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-4">
-          <div
-            role="tablist"
-            aria-label="Destination categories"
-            className="no-scrollbar inline-flex max-w-full items-center overflow-x-auto rounded-full border border-gray-200/80 bg-gray-100/90 p-1 text-xs font-medium"
-          >
-            {visibleTabs.map((t, i) => {
-              const selected = t.id === active
-              return (
-                <button
-                  key={t.id}
-                  ref={(el) => {
-                    tabRefs.current[i] = el
-                  }}
-                  id={tabId(t.id)}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  aria-controls={panelId}
-                  tabIndex={selected ? 0 : -1}
-                  onClick={() => setActive(t.id)}
-                  onKeyDown={(e) => onKeyDown(e, i)}
-                  className={cn(
-                    "inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 whitespace-nowrap transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-brand-gold active:scale-95",
-                    selected ? "bg-stone-900 font-semibold text-white shadow-xs" : "text-gray-700 hover:bg-white/60 hover:text-stone-900"
+          <div ref={filterRef} className="relative">
+            <button
+              id={`${baseId}-filter-button`}
+              type="button"
+              aria-expanded={filterOpen}
+              aria-controls={filterPanelId}
+              onClick={() => setFilterOpen((open) => !open)}
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-xs font-semibold text-gray-800 shadow-sm transition hover:border-gray-300 focus-visible:ring-2 focus-visible:ring-brand-gold"
+            >
+              <SlidersHorizontal aria-hidden className="size-3.5" />
+              Filters
+              {filterCount > 0 && (
+                <span className="flex size-5 items-center justify-center rounded-full bg-stone-900 text-[10px] text-white">
+                  {filterCount}
+                </span>
+              )}
+              <ChevronDown
+                aria-hidden
+                className={cn("size-3.5 transition-transform", filterOpen && "rotate-180")}
+              />
+            </button>
+            {filterOpen && (
+              <div
+                id={filterPanelId}
+                role="group"
+                aria-labelledby={`${baseId}-filter-button`}
+                className="absolute top-full right-0 z-30 mt-2 w-64 rounded-2xl border border-gray-200 bg-white p-4 shadow-xl"
+              >
+                <div className="space-y-3">
+                  <div>
+                    <label
+                      htmlFor={`${baseId}-category`}
+                      className="mb-1.5 block text-[11px] font-semibold tracking-wide text-gray-600 uppercase"
+                    >
+                      Category
+                    </label>
+                    <select
+                      id={`${baseId}-category`}
+                      value={active}
+                      onChange={(event) => setActive(event.currentTarget.value as TabId)}
+                      className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+                    >
+                      {visibleTabs.map((tab) => (
+                        <option key={tab.id} value={tab.id}>
+                          {tab.label} ({tab.count})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor={`${baseId}-intake`}
+                      className="mb-1.5 block text-[11px] font-semibold tracking-wide text-gray-600 uppercase"
+                    >
+                      Intake
+                    </label>
+                    <select
+                      id={`${baseId}-intake`}
+                      value={selectedIntake}
+                      onChange={(event) => {
+                        setSelectedIntake(event.currentTarget.value)
+                        setActive("all")
+                      }}
+                      className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+                    >
+                      <option value="all">All intakes</option>
+                      {intakeOptions.map((intake) => (
+                        <option key={intake} value={intake}>
+                          {intake}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {filterCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActive("all")
+                        setSelectedIntake("all")
+                      }}
+                      className="pt-1 text-xs font-semibold text-brand-forest underline underline-offset-2"
+                    >
+                      Clear filters
+                    </button>
                   )}
-                >
-                  {t.label}
-                  <span
-                    className={cn(
-                      "rounded-full px-1.5 text-[10px] tabular-nums",
-                      selected ? "bg-white/15 text-white/80" : "bg-gray-200/80 text-gray-500"
-                    )}
-                  >
-                    {t.count}
-                  </span>
-                </button>
-              )
-            })}
+                </div>
+              </div>
+            )}
           </div>
           <div className={cn("flex items-center gap-2", fits && "invisible")} aria-hidden={fits || undefined}>
             {([-1, 1] as const).map((dir) => (
@@ -180,16 +267,20 @@ export function DestinationTabs({
       <div
         ref={rowRef}
         id={panelId}
-        role="tabpanel"
-        aria-labelledby={tabId(active)}
+        role="region"
+        aria-label="Curated destination cards"
         aria-roledescription="carousel"
         // Padding inside the scroller leaves room for the hover lift and shadow,
         // which overflow clipping would otherwise cut off.
         className="no-scrollbar -mx-6 -my-4 flex snap-x snap-mandatory scroll-px-6 items-start gap-6 overflow-x-auto overscroll-x-contain px-6 py-4 pb-12 md:mx-0 md:scroll-px-0 md:px-0 lg:gap-8"
       >
-        {items.map((d, i) => (
-          <DestinationCard key={d.slug} destination={d} index={i} />
-        ))}
+        {items.length > 0 ? (
+          items.map((d, i) => <DestinationCard key={d.slug} destination={d} index={i} />)
+        ) : (
+          <p className="px-2 py-12 text-sm text-gray-600" role="status">
+            No destinations are listed for this intake yet.
+          </p>
+        )}
       </div>
     </>
   )

@@ -14,6 +14,7 @@ const destinationSchema = new Schema(
     meta: { type: String, default: null },
     body: { type: String, default: "" },
     chips: { type: [String], default: [] },
+    intakes: { type: [String], default: [] },
     cta: { type: String, default: "Explore Programs" },
     image: { type: String, default: null },
     imageAlt: { type: String, default: "" },

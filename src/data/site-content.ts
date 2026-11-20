@@ -10,7 +10,7 @@ export const HOME_DEFAULTS = {
   heroEyebrow: "Study abroad counselling · Kathmandu",
   heroTitle: "Your study abroad journey, handled in *detail.*",
   heroSubtitle: "From your first question in Kathmandu to your first campus day.",
-  heroPrimaryCta: "Book free counselling",
+  heroPrimaryCta: "Speak with us",
   heroSecondaryCta: "Explore destinations",
   heroNote: "Free first session, students & parents welcome",
   mapCardTitle: "Big dreams. A clear next step.",
