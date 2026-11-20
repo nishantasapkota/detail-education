@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { Consultation } from "@/components/marketing/consultation"
+import { DocumentationTimeline } from "@/components/marketing/documentation-timeline"
 import { Destinations } from "@/components/marketing/destinations"
 import { Hero } from "@/components/marketing/hero"
 import { Journal } from "@/components/marketing/journal"
@@ -52,6 +53,7 @@ export default async function HomePage() {
         <PartnerMarquee kicker={content.partnersKicker} title={content.partnersTitle} partners={partners} />
       )}
       <Destinations content={content} />
+      <DocumentationTimeline />
       <Process content={content} steps={services} />
       <Philosophy content={content} member={member} />
       <TestPrep content={content} courses={courses} />
