@@ -3,6 +3,7 @@ import "server-only"
 import { cacheLife, cacheTag } from "next/cache"
 
 import {
+  ABOUT_DEFAULTS,
   BUSINESS_DEFAULTS,
   HOME_DEFAULTS,
   SEED_COURSES,
@@ -11,7 +12,7 @@ import {
   SEED_TESTIMONIALS,
 } from "@/data/site-content"
 import { serializeDoc, type CmsDoc } from "@/lib/cms/serialize"
-import { business, home, privacy, terms } from "@/lib/cms/singletons"
+import { about, business, home, privacy, terms } from "@/lib/cms/singletons"
 import { connectDB } from "@/lib/db/mongoose"
 import { readSingletonValues } from "@/services/singleton.service"
 
@@ -23,11 +24,14 @@ import { readSingletonValues } from "@/services/singleton.service"
  */
 
 export type HomeContent = typeof HOME_DEFAULTS
+export type AboutContent = typeof ABOUT_DEFAULTS
 export type BusinessContent = typeof BUSINESS_DEFAULTS & { whatsappUrl: string }
 
 export type Service = { slug: string; title: string; stage: string; summary: string; linkLabel: string }
 export type Course = { slug: string; name: string; tag: string; summary: string; points: string[]; duration: string; fee: string | null }
 export type Testimonial = { id: string; name: string; role: string; quote: string; photo: string | null; verified: boolean }
+export type Partner = { id: string; name: string; country: string; logo: string | null; website: string | null }
+export type VisaSuccess = { id: string; name: string; country: string; university: string | null; intake: string | null; photo: string }
 export type TeamMember = { name: string; title: string; bio: string; quote: string | null; yearsExperience: number; photo: string | null; featured: boolean }
 export type Article = {
   slug: string
@@ -70,6 +74,13 @@ export async function getHomeContent(): Promise<HomeContent> {
   cacheLife("days")
   cacheTag("page-home")
   return readSingletonValues<HomeContent>(home)
+}
+
+export async function getAboutContent(): Promise<AboutContent> {
+  "use cache"
+  cacheLife("days")
+  cacheTag("page-about")
+  return readSingletonValues<AboutContent>(about)
 }
 
 export async function getBusiness(): Promise<BusinessContent> {
@@ -130,6 +141,47 @@ export async function getTestimonials(): Promise<Testimonial[]> {
   )
 }
 
+/** Published partner institutions for the home page logo marquee. Empty → the section is hidden. */
+export async function getPartners(): Promise<Partner[]> {
+  "use cache"
+  cacheLife("days")
+  cacheTag("partners")
+  return withFallback(
+    "partners",
+    async () =>
+      (await find("partners", { published: true }, { order: 1, name: 1 })).map((d) => ({
+        id: d.id,
+        name: String(d.name),
+        country: String(d.country ?? ""),
+        logo: (d.logo as string | null) ?? null,
+        website: (d.website as string | null) ?? null,
+      })),
+    () => []
+  )
+}
+
+/** Published visa grants with a photo, for the home page gallery. Empty → the section is hidden. */
+export async function getVisaSuccesses(): Promise<VisaSuccess[]> {
+  "use cache"
+  cacheLife("days")
+  cacheTag("visas")
+  return withFallback(
+    "visas",
+    async () =>
+      (await find("visa_successes", { published: true, photo: { $nin: [null, ""] } }, { order: 1, createdAt: -1 })).map(
+        (d) => ({
+          id: d.id,
+          name: String(d.name),
+          country: String(d.country ?? ""),
+          university: (d.university as string | null) ?? null,
+          intake: (d.intake as string | null) ?? null,
+          photo: String(d.photo),
+        })
+      ),
+    () => []
+  )
+}
+
 /** The member shown in the "personal attention" card: featured first, else the first. */
 export async function getFeaturedTeamMember(): Promise<TeamMember | null> {
   "use cache"
@@ -142,6 +194,19 @@ export async function getFeaturedTeamMember(): Promise<TeamMember | null> {
     () => SEED_TEAM
   )
   return rows[0] ?? null
+}
+
+/** Everyone published on Team, featured first, for the about page. */
+export async function getTeam(): Promise<TeamMember[]> {
+  "use cache"
+  cacheLife("days")
+  cacheTag("team")
+  const keys: (keyof TeamMember)[] = ["name", "title", "bio", "quote", "yearsExperience", "photo", "featured"]
+  return withFallback(
+    "team",
+    async () => (await find("team", { published: true }, { featured: -1, order: 1 })).map((d) => pick<TeamMember>(d, keys)),
+    () => SEED_TEAM
+  )
 }
 
 const ARTICLE_KEYS: (keyof Article)[] = [

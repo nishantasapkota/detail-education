@@ -1,4 +1,5 @@
 import {
+  BadgeCheck,
   BriefcaseBusiness,
   Building2,
   CalendarCheck,
@@ -49,6 +50,7 @@ export const ADMIN_NAV: NavGroup[] = [
       { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote, permission: "testimonials.manage" },
       { href: "/admin/team", label: "Team", icon: Users, permission: "content.manage" },
       { href: "/admin/partners", label: "Partners", icon: Handshake, permission: "content.manage" },
+      { href: "/admin/visas", label: "Visa success", icon: BadgeCheck, permission: "content.manage" },
       { href: "/admin/media", label: "Media library", icon: ImageIcon, permission: "media.manage" },
     ],
   },

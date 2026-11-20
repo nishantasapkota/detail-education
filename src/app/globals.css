@@ -32,6 +32,12 @@
   --animate-breathe: breathe 3.6s ease-in-out infinite;
   --animate-check-ripple: check-ripple 2.8s infinite;
   --animate-hub-beacon: hub-beacon 2.6s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  --animate-marquee: marquee 40s linear infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
 
   @keyframes flight-route {
     from { stroke-dashoffset: 28; }

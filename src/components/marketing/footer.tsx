@@ -8,7 +8,7 @@ const EXPLORE = [
   { href: "/#testprep", label: "Test preparation" },
   { href: "/#stories", label: "Success stories" },
   { href: "/journal", label: "Insights & guides" },
-  { href: "/#about", label: "About us" },
+  { href: "/about", label: "About us" },
 ]
 
 const SOCIALS = [

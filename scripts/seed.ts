@@ -9,14 +9,17 @@ import mongoose from "mongoose"
 
 import { DEFAULT_DESTINATIONS } from "../src/data/destinations.ts"
 import {
+  ABOUT_DEFAULTS,
   BUSINESS_DEFAULTS,
   HOME_DEFAULTS,
   PRIVACY_DEFAULTS,
   SEED_ARTICLES,
   SEED_COURSES,
   SEED_SERVICES,
+  SEED_PARTNERS,
   SEED_TEAM,
   SEED_TESTIMONIALS,
+  SEED_VISA_SUCCESSES,
   TERMS_DEFAULTS,
 } from "../src/data/site-content.ts"
 
@@ -64,9 +67,11 @@ await seed("services", "slug", SEED_SERVICES)
 await seed("courses", "slug", SEED_COURSES)
 await seed("testimonials", "name", SEED_TESTIMONIALS)
 await seed("team", "name", SEED_TEAM)
+await seed("partners", "name", SEED_PARTNERS)
+await seed("visa_successes", "name", SEED_VISA_SUCCESSES)
 await seed("articles", "slug", SEED_ARTICLES, { status: "published", seoTitle: null, seoDescription: null }, overwriteArticles)
 
-const singletons = { home: HOME_DEFAULTS, business: BUSINESS_DEFAULTS, privacy: PRIVACY_DEFAULTS, terms: TERMS_DEFAULTS }
+const singletons = { home: HOME_DEFAULTS, about: ABOUT_DEFAULTS, business: BUSINESS_DEFAULTS, privacy: PRIVACY_DEFAULTS, terms: TERMS_DEFAULTS }
 let pages = 0
 for (const [key, values] of Object.entries(singletons)) {
   const res = await db

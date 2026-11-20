@@ -15,7 +15,7 @@ export default async function PagesPage() {
 
   return (
     <>
-      <PageHeader title="Pages" description="Copy for the home page and legal pages." />
+      <PageHeader title="Pages" description="Copy for the home, about and legal pages." />
       <div className="grid gap-4 sm:grid-cols-2">
         {pages.map(({ def, meta }) => (
           <Link key={def.key} href={`/admin/pages/${def.key}`} className="group">

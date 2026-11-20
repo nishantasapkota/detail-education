@@ -52,7 +52,7 @@ export const team = defineResource({
   titleField: "name",
   searchFields: ["name", "title"],
   defaultSort: { order: 1 },
-  publicPath: () => "/#about",
+  publicPath: () => "/about",
   cacheTags: ["team"],
   defaults: { featured: false, published: true, order: 0, yearsExperience: 0, photo: null },
 })

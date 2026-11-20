@@ -3,7 +3,7 @@ import "server-only"
 import { AppError } from "@/lib/api/errors"
 import type { SingletonDef } from "@/lib/cms/types"
 import { connectDB } from "@/lib/db/mongoose"
-import { BUSINESS_DEFAULTS, HOME_DEFAULTS, PRIVACY_DEFAULTS, TERMS_DEFAULTS } from "@/data/site-content"
+import { ABOUT_DEFAULTS, BUSINESS_DEFAULTS, HOME_DEFAULTS, PRIVACY_DEFAULTS, TERMS_DEFAULTS } from "@/data/site-content"
 
 /**
  * Single editable documents (page copy, business details), stored in the
@@ -13,6 +13,7 @@ import { BUSINESS_DEFAULTS, HOME_DEFAULTS, PRIVACY_DEFAULTS, TERMS_DEFAULTS } fr
 
 export const SINGLETON_DEFAULTS: Record<string, Record<string, unknown>> = {
   home: HOME_DEFAULTS,
+  about: ABOUT_DEFAULTS,
   business: BUSINESS_DEFAULTS,
   privacy: PRIVACY_DEFAULTS,
   terms: TERMS_DEFAULTS,

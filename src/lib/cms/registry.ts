@@ -6,6 +6,7 @@ import { partners } from "@/lib/cms/resources/partners"
 import { services } from "@/lib/cms/resources/services"
 import { team } from "@/lib/cms/resources/team"
 import { testimonials } from "@/lib/cms/resources/testimonials"
+import { visaSuccesses } from "@/lib/cms/resources/visa-successes"
 import type { ResourceDef } from "@/lib/cms/types"
 
 /** Every CMS content type, by URL key (/admin/<key>). */
@@ -17,6 +18,7 @@ export const RESOURCES = {
   testimonials,
   team,
   partners,
+  visas: visaSuccesses,
   events,
 } satisfies Record<string, ResourceDef>
 
