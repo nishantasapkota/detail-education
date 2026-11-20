@@ -58,13 +58,16 @@ export function DestinationTabs({
           destination.intakes.some((intake) => normalizeIntake(intake) === selectedIntake)
         )
   const visibleTabs = tabs
-    .map((tab) => ({
-      ...tab,
-      count:
-        tab.id === "all"
-          ? intakeMatches.length
-          : intakeMatches.filter((destination) => destination.categories.includes(tab.id)).length,
-    }))
+    .map((tab) => {
+      const categoryId = tab.id === "all" ? null : tab.id
+      return {
+        ...tab,
+        count:
+          categoryId === null
+            ? intakeMatches.length
+            : intakeMatches.filter((destination) => destination.categories.includes(categoryId)).length,
+      }
+    })
     .filter((tab) => tab.count > 0)
   const items =
     active === "all"
